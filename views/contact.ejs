@@ -1,0 +1,52 @@
+<!DOCTYPE html>
+<html lang="en">
+  <head>
+    <meta charset="UTF-8" />
+    <meta http-equiv="X-UA-Compatible" content="IE=edge" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>sss</title>
+  </head>
+  <body>
+    <form action="submit" method="post" enctype="multipart/form-data">
+      <form
+        id="contact-form"
+        method="POST"
+        action="send"
+        enctype="multipart/form-data"
+      >
+        <input
+          placeholder="fullName"
+          id="fullname"
+          name="fullName"
+          type="text"
+          required
+        />
+        <input
+          placeholder="Email"
+          id="email"
+          type="email"
+          name="email"
+          aria-describedby="emailHelp"
+          required
+        />
+
+        <textarea
+          placeholder="Message"
+          id="message"
+          name="message"
+          class="form-control"
+          required
+        ></textarea>
+        <button type="submit" value="submit">Submit</button>
+      </form>
+
+      <!-- <label for="text">Full name:</label>
+      <input type="text" id="fullname" name="fullname" required />
+      <label for="Email">Email:</label>
+      <input type="email" id="email" name="email" required />
+      <label for="body">Message:</label>
+      <textarea id="body" name="body" required></textarea>
+      <button type="submit" value="submit">Submit</button> -->
+    </form>
+  </body>
+</html>
