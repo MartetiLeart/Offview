@@ -1,18 +1,6 @@
-// const router = require("express").Router();
-// const {
-//   getSearchProfiles,
-//   addSearchProfile,
-// } = require("../controller/searchController");
+const router = require("express").Router();
 
-// //search profiles
-// router.get("/searchProfiles", getSearchProfiles);
-// router.post("/searchProfiles", addSearchProfile);
+router.get();
+router.post();
 
-// //search bar in progress
-// router.post("/search", (req, res) => {
-//   const payload = req.body.payload.trim();
-
-//   console.log(payload);
-// });
-
-// module.exports = router;
+module.exports = router;

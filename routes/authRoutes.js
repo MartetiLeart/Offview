@@ -8,4 +8,19 @@ router.post("/signup", authController.signup_post);
 router.post("/login", authController.login_post);
 router.get("/logout", authController.logout_get);
 
+//Route for email verification
+router.get("/users/verify/:verificationCode", authController.verify);
+
+//Route for reseting the password
+
+router.get(
+  "/users/resetpassword/:resetPasswordToken",
+  authController.resetPassword
+);
+//initiating reset password
+router.put("/users/resetpassword", authController.resetPasswordInit);
+
+//post for new password
+router.post("/users/resetpassword", authController.resetPasswordPost);
+
 module.exports = router;

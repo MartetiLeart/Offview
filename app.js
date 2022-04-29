@@ -4,18 +4,22 @@ const path = require("path");
 const mongoose = require("mongoose");
 const cookieParser = require("cookie-parser");
 const authRoutes = require("./routes/authRoutes");
-const searchRoutes = require("./routes/searchRoutes");
+const advertisementRoutes = require("./routes/advertisementRoutes");
 const privacyPolicy = require("./routes/privacyPolicy");
 const imprint = require("./routes/imprintRoutes");
 const contact = require("./routes/contactRoutes");
 const faq = require("./routes/faqRoutes");
 const about = require("./routes/aboutRoutes");
+// const passport = require("passport");
 const {
   requireAuth,
-  checkRole,
+  // checkRole,
   checkUser,
 } = require("./middleware/authMiddleware");
 require(`dotenv`).config();
+
+//import passport middleware
+// require("./middleware/passport");
 
 //middlewares
 app.set("view engine", "ejs");
@@ -24,6 +28,7 @@ app.use(express.static("public"));
 app.use(express.json());
 app.use(cookieParser());
 app.use(express.urlencoded({ extended: true }));
+// app.user(passport.initialize());
 
 //view-engine
 app.set("view engine", "ejs");
@@ -44,14 +49,14 @@ mongoose
 
 //routes
 // app.use("*", checkUser);
-app.get("/", checkRole("investor", "private"), (req, res) => {
+app.get("/", (req, res) => {
   res.render("home");
 });
 app.get("/main");
 app.use("/", authRoutes);
-// app.use("/", searchRoutes);
 app.use("/", privacyPolicy);
 app.use("/", imprint);
 app.use("/", contact);
 app.use("/", faq);
 app.use("/", about);
+app.use("/", advertisementRoutes);

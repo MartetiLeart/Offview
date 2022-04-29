@@ -1,6 +1,7 @@
 const nodemailer = require("nodemailer");
 require("dotenv").config();
 
+//Email sender function
 let transporter = nodemailer.createTransport({
   service: "hotmail",
   auth: {
@@ -8,14 +9,13 @@ let transporter = nodemailer.createTransport({
     pass: process.env.PASSWORD,
   },
 });
-const sendMail = async (req, res) => {
-  const { fullName, email, message } = req.body;
+const sendVerification = async (email, subject, text, html) => {
   const options = {
-    from: "leartmarteti@hotmail.com",
-    to: "lm43401@ubt-uni.net",
-    subject: "Email response",
-    // text: fullName + "\n" + message + "\n" + email\,
-    text: fullName + "..." + email + "..." + message,
+    from: process.env.EMAIL,
+    to: email,
+    subject,
+    text,
+    html,
   };
   await transporter.sendMail(options, (err, info) => {
     if (err) {
@@ -24,8 +24,8 @@ const sendMail = async (req, res) => {
     }
     console.log(info.response);
   });
-  res.status(200).json({ success: true, message: "email has been send" });
 };
+
 module.exports = {
-  sendMail,
+  sendVerification,
 };
