@@ -1,26 +1,39 @@
 const router = require("express").Router();
-const authController = require("../controller/authController");
+const {
+  verify_now,
+  editUser,
+  deleteUser,
+  getOne,
+  signup_get,
+  login_get,
+  login_post,
+  signup_post,
+  getAll,
+  resetPassword,
+  resetPasswordInit,
+  resetPasswordPost,
+} = require("../controller/authController");
+const authGuard = require("../middleware/auth-guard");
 
 //sign up and login routes
-router.get("/signup", authController.signup_get);
-router.get("/login", authController.login_get);
-router.post("/signup", authController.signup_post);
-router.post("/login", authController.login_post);
-router.get("/logout", authController.logout_get);
+router.get("/signup", signup_get);
+router.get("/login", authGuard, login_get);
+router.post("/signup", signup_post);
+router.post("/login", login_post);
+
+//get all users
+router.get("/getAll", getAll);
 
 //Route for email verification
-router.get("/users/verify/:verificationCode", authController.verify);
+router.get("/users/verify/:verificationCode", verify_now);
+
+//initiating reset password
+router.put("/users/resetpassword", resetPasswordInit);
 
 //Route for reseting the password
-
-router.get(
-  "/users/resetpassword/:resetPasswordToken",
-  authController.resetPassword
-);
-//initiating reset password
-router.put("/users/resetpassword", authController.resetPasswordInit);
+router.get("/users/resetpassword/:resetPasswordToken", resetPassword);
 
 //post for new password
-router.post("/users/resetpassword", authController.resetPasswordPost);
+router.post("/users/resetpassword", resetPasswordPost);
 
 module.exports = router;
