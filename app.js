@@ -53,7 +53,7 @@ app.get("/", (req, res) => {
   res.render("home");
 });
 app.get("/main");
-app.use("/", authRoutes);
+app.use("/users", authRoutes);
 app.use("/", privacyPolicy);
 app.use("/", imprint);
 app.use("/", contact);

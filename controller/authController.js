@@ -13,6 +13,7 @@ const { sendVerification } = require("../functions/verificationSender");
 const { fail } = require("assert");
 const bcrypt = require("bcrypt");
 const { Redshift } = require("aws-sdk");
+const { clone } = require("lodash");
 
 require(`dotenv`).config();
 
@@ -94,7 +95,7 @@ const signup_post = async (req, res) => {
       });
 
       let html = `
-    <h1>Hello,${broker.username}</h1>
+    <h1>Hello,${owner.username}</h1>
     <p>Please click the following link to verify your account</p>
     <a href = "${process.env.APP_DOMAIN}users/verify/${owner.verificationCode}">Verify Now</a>
     `;
@@ -122,7 +123,7 @@ const signup_post = async (req, res) => {
       });
 
       let html = `
-    <h1>Hello, ${broker.username}</h1>
+    <h1>Hello, ${investorCompany.username}</h1>
     <p>Please click the following link to verify your account</p>
     <a href = "${process.env.APP_DOMAIN}users/verify/${investorCompany.verificationCode}">Verify Now</a>
     `;
@@ -151,7 +152,7 @@ const signup_post = async (req, res) => {
       });
 
       let html = `
-    <h1>Hello, ${broker.username}</h1>
+    <h1>Hello, ${investorPrivate.username}</h1>
     <p>Please click the following link to verify your account</p>
     <a href = "${process.env.APP_DOMAIN}users/verify/${investorPrivate.verificationCode}">Verify Now</a>
     `;
@@ -195,6 +196,7 @@ const signup_post = async (req, res) => {
         html
       );
     }
+
     return res.status(200).json({
       success: true,
       message: "Signup was successful",
@@ -217,23 +219,16 @@ const verify_now = async (req, res) => {
   try {
     const { verificationCode } = req.params;
 
-    const useri = await baseSchema
-      .findOne({ verificationCode }, function (err, user) {
-        return user;
-      })
-      .clone()
-      .catch(function (err) {
-        console.log(err);
-      });
-    if (!useri) {
+    const user = await baseSchema.findOne({ verificationCode });
+    if (!user) {
       return res.status(401).json({
         success: false,
         message: "Password reset token invalid or has expired",
       });
     }
-    useri.verified = true;
-    useri.verificationCode = undefined;
-    await useri.save();
+    user.verified = true;
+    user.verificationCode = undefined;
+    await user.save();
     return res.status(200).json("successful");
   } catch (err) {
     console.log(err);
@@ -363,7 +358,6 @@ const resetPasswordPost = async (req, res) => {
         message: "Password reset token invalid or has expired",
       });
     }
-    console.log(password);
     user.password = password;
     user.resetPasswordToken = undefined;
     user.resetPasswordExpiresIn = undefined;
@@ -402,17 +396,7 @@ const resetPasswordPost = async (req, res) => {
 const login_post = async (req, res) => {
   try {
     const { username, password } = req.body;
-    const user = await baseSchema
-      .findOne({ username: username }, function (err, base) {
-        if (!base) {
-          console.log(err);
-        }
-        return base;
-      })
-      .clone()
-      .catch(function (err) {
-        console.log(err);
-      });
+    const user = await baseSchema.findOne({ username: username });
 
     if (!(await user.comparePassword(password))) {
       return res.status(401).json({
@@ -420,6 +404,7 @@ const login_post = async (req, res) => {
         message: "Failed, password is not correct",
       });
     }
+
     let token = await user.generateJWT();
     return res.status(200).json({
       success: true,
@@ -439,34 +424,62 @@ const login_post = async (req, res) => {
 
 /**
  * @description Edit user
- * @type PUT
- * @url /users/dashboard/editUser
+ * @type PATCH
+ * @url /users/dashboard/editUser/:id
  */
 
-const editUser = (req, res) => {
-  const id = req.params.id;
+const editUser = async (req, res) => {
+  try {
+    const id = req.params.id;
+    const body = req.body;
+    const user = await baseSchema.findById(req.params.id);
+    Object.assign(user, req.body);
+    user.save();
+    res.status(200).json({ success: true, message: "User edited", data: user });
+  } catch (error) {
+    console.log(error);
+    res.status(500).json({ success: false, message: "error on editing user" });
+  }
 };
 
 /**
  * @description Delete user
  * @type DELETE
- * @url /users/dashboard/deleteuser
+ * @url /users/dashboard/deleteuser/:id
  */
-const deleteUser = (req, res) => {
-  const id = req.params.id;
+const deleteUser = async (req, res) => {
+  try {
+    const id = req.params.id;
+    const user = await baseSchema.deleteOne({ _id: id });
+    res.status(200).json({ success: true, message: "User deleted" });
+  } catch (error) {
+    console.log(error);
+    res.status(500).json({ success: false, message: "error on deleting user" });
+  }
 };
 
 /**
  * @description gets only one user
  * @type GET
- * @url /users/dashboard/getOne
+ * @url /users/dashboard/getOne/:id
  */
 
 const getOne = async (req, res) => {
-  const id = req.params.id;
-  const user = await baseschema.find({ id }, function (err, user) {
-    res.json({ user });
-  });
+  try {
+    const id = req.params.id;
+    const user = await baseSchema
+      .findOne({ _id: id }, function (err, base) {
+        console.log(base);
+      })
+      .clone()
+      .catch(function (err) {
+        console.log(err);
+      });
+    res.status(200).json({ user: user });
+  } catch (err) {
+    console.log(err);
+    res.status(401).json({ success: false, message: "Failed to get user" });
+  }
 };
 
 /**
@@ -475,12 +488,23 @@ const getOne = async (req, res) => {
  * @url /users/dashboard/getAll
  */
 const getAll = async (req, res) => {
-  const userat = await baseSchema.find({}, function (err, users) {
-    if (!userat) {
-      res.json("ska usera");
-    }
-    res.json({ userat });
-  });
+  const userat = await baseSchema
+    .find({}, function (err, users) {
+      if (!userat) {
+        res.json("ska usera");
+      }
+      res.json({ userat });
+    })
+    .clone()
+    .catch(function (err) {
+      console.log(err);
+    });
+};
+
+const logout = (req, res) => {
+  console.log("you have been logged out");
+
+  res.status(200).redirect("/login");
 };
 
 module.exports = {
@@ -496,4 +520,5 @@ module.exports = {
   signup_get,
   login_get,
   login_post,
+  logout,
 };

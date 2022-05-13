@@ -1,6 +1,4 @@
-const living = require("../model/createAdvertisement/secondType/Living");
-const commercial = require("../model/createAdvertisement/secondType/Commercial");
-const residentialAndCommercial = require("../model/createAdvertisement/secondType/ResidentialAndCommercial");
+const Advertisement = require("../model/createAdvertisement/Advertisement");
 require("dotenv").config();
 
 //image uploader requires
@@ -8,11 +6,14 @@ const fs = require("fs");
 const S3 = require("aws-sdk/clients/s3");
 const { download } = require("express/lib/response");
 const res = require("express/lib/response");
-const Advertisement = require("../model/createAdvertisement/Advertisement");
 
 //advertisement_Get,advertisement_GetAll,advertisement_Post,advertisement_Put,advertisement_Delete,advertisement_Search,
 
-//gets one advertisement
+/**
+ * @description Gets one advertisement
+ * @type GET
+ * @url /advertisement/dashboard/getOne/:id
+ */
 
 const advertisement_Get = (req, res) => {
   const id = req.params.id;
@@ -23,14 +24,11 @@ const advertisement_GetAll = (req, res) => {
 const advertisement_Post = (req, res) => {
   console.log("post");
 };
-const advertisement_Put = (req, res) => {
+const advertisement_Patch = (req, res) => {
   const id = req.params.id;
 };
 const advertisement_Delete = (req, res) => {
   console.log("here");
-};
-const advertisement_Search = (req, res) => {
-  console.log("post");
 };
 
 //image uploader
@@ -105,9 +103,8 @@ module.exports = {
   advertisement_Get,
   advertisement_GetAll,
   advertisement_Post,
-  advertisement_Put,
+  advertisement_Patch,
   advertisement_Delete,
-  advertisement_Search,
 
   //imagemethods
 

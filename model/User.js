@@ -1,6 +1,6 @@
 const mongoose = require("mongoose");
 const { isEmail } = require("validator");
-const bcrypt = require("bcrypt");
+const bcrypt = require("bcryptjs");
 const { randomBytes } = require("crypto");
 const { pick } = require("lodash");
 const jwt = require("jsonwebtoken");
@@ -61,14 +61,17 @@ const baseSchema = mongoose.model(
 );
 
 baseSchema.schema.pre("save", async function (next) {
-  const salt = await bcrypt.genSalt();
-  this.password = await bcrypt.hash(this.password, salt);
+  if (this.isModified("password")) {
+    const salt = await bcrypt.genSalt(10);
+    this.password = await bcrypt.hashSync(this.password, salt);
+    next();
+  }
   next();
 });
 
-//method for  comparing password
+//method for comparing the password
 baseSchema.schema.methods.comparePassword = async function (password) {
-  return await bcrypt.compare(password, this.password);
+  return await bcrypt.compareSync(password, this.password);
 };
 
 //schema generate you password reset token key method
