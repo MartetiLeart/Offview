@@ -35,7 +35,7 @@ const createToken = (id) => {
 /**
  * @description Renders signup page
  * @type GET
- * @url /users/login
+ * @url /users/signup
  */
 const signup_get = (req, res) => {
   res.render("signup");
@@ -44,7 +44,7 @@ const signup_get = (req, res) => {
 /**
  * @description get login method
  * @type GET
- * @url /users/signup
+ * @url /users/login
  */
 const login_get = (req, res) => {
   console.log("REQ", req.user);
@@ -60,7 +60,6 @@ const login_get = (req, res) => {
 const signup_post = async (req, res) => {
   try {
     const {
-      username,
       email,
       password,
       role,
@@ -80,7 +79,6 @@ const signup_post = async (req, res) => {
     //create owner and save to mongodb
     if (role === "owner") {
       const owner = await sownerSchema.create({
-        username,
         email,
         password,
         role,
@@ -95,7 +93,7 @@ const signup_post = async (req, res) => {
       });
 
       let html = `
-    <h1>Hello,${owner.username}</h1>
+    <h1>Hello,</h1>
     <p>Please click the following link to verify your account</p>
     <a href = "${process.env.APP_DOMAIN}users/verify/${owner.verificationCode}">Verify Now</a>
     `;
@@ -110,7 +108,6 @@ const signup_post = async (req, res) => {
     //create company investor and save to mongodb
     if (role === "company") {
       const investorCompany = await icompanySchema.create({
-        username,
         email,
         password,
         role,
@@ -123,7 +120,7 @@ const signup_post = async (req, res) => {
       });
 
       let html = `
-    <h1>Hello, ${investorCompany.username}</h1>
+    <h1>Hello,</h1>
     <p>Please click the following link to verify your account</p>
     <a href = "${process.env.APP_DOMAIN}users/verify/${investorCompany.verificationCode}">Verify Now</a>
     `;
@@ -137,7 +134,6 @@ const signup_post = async (req, res) => {
     //create private investor and save to mongodb
     if (role === "private") {
       const investorPrivate = await iprivateSchema.create({
-        username,
         email,
         password,
         role,
@@ -152,7 +148,7 @@ const signup_post = async (req, res) => {
       });
 
       let html = `
-    <h1>Hello, ${investorPrivate.username}</h1>
+    <h1>Hello,</h1>
     <p>Please click the following link to verify your account</p>
     <a href = "${process.env.APP_DOMAIN}users/verify/${investorPrivate.verificationCode}">Verify Now</a>
     `;
@@ -167,7 +163,7 @@ const signup_post = async (req, res) => {
     //create broker and save to mongodb
     if (role === "broker") {
       const broker = await sbrokerSchema.create({
-        username,
+        
         email,
         password,
         role,
@@ -185,7 +181,7 @@ const signup_post = async (req, res) => {
         verificationCode: randomBytes(20).toString("hex"),
       });
       let html = `
-    <h1>Hello, ${broker.username}</h1>
+    <h1>Hello,</h1>
     <p>Please click the following link to verify your account</p>
     <a href = "${process.env.APP_DOMAIN}users/verify/${broker.verificationCode}">Verify Now</a>
     `;
@@ -269,7 +265,7 @@ const resetPasswordInit = async (req, res) => {
 
     //Send password reset link to email
     let html = `
-    <h1>Hello, ${user.username}</h1>
+    <h1>Hello,/h1>
     <p>Please click the following link to reset your password</p>
     <a href = "${process.env.APP_DOMAIN}users/resetpassword/${user.resetPasswordToken}">Reset your password</a>`;
     sendVerification(
@@ -366,7 +362,7 @@ const resetPasswordPost = async (req, res) => {
     //Send confirmation email to user that the password has been changed
 
     let html = `
-    <h1>Hello, ${user.username}</h1>
+    <h1>Hello,</h1>
     <p>Your password has been changed, if it wasn't done by you please contact our support</p>`;
     sendVerification(
       user.email,
@@ -395,8 +391,8 @@ const resetPasswordPost = async (req, res) => {
 
 const login_post = async (req, res) => {
   try {
-    const { username, password } = req.body;
-    const user = await baseSchema.findOne({ username: username });
+    const { email, password } = req.body;
+    const user = await baseSchema.findOne({ email: email });
 
     if (!(await user.comparePassword(password))) {
       return res.status(401).json({
@@ -503,7 +499,6 @@ const getAll = async (req, res) => {
 
 const logout = (req, res) => {
   console.log("you have been logged out");
-
   res.status(200).redirect("/login");
 };
 

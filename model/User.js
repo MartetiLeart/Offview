@@ -16,11 +16,6 @@ const baseSchema = mongoose.model(
   "base",
   new mongoose.Schema(
     {
-      username: {
-        type: String,
-        required: true,
-        unique: true,
-      },
       email: {
         type: String,
         required: [true, "Please enter an email"],
@@ -82,7 +77,6 @@ baseSchema.schema.methods.generatePasswordReset = async function () {
 
 baseSchema.schema.methods.generateJWT = async function () {
   let payload = {
-    username: this.username,
     email: this.email,
     id: this._id,
   };
@@ -92,7 +86,7 @@ baseSchema.schema.methods.generateJWT = async function () {
 };
 //get user info from mongo
 baseSchema.schema.methods.getUserInfo = function () {
-  return pick(this, ["_id", "username", "email", "role", "verified"]);
+  return pick(this, ["_id", "email", "role", "verified"]);
 };
 
 //investor company schema
